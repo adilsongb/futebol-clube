@@ -4,8 +4,7 @@ import Match from './Match';
 
 class Club extends Model {
   public id: number;
-
-  public clubName: string;
+  public club_name: string;
 }
 
 Club.init({
@@ -15,7 +14,7 @@ Club.init({
     autoIncrement: true,
     allowNull: false,
   },
-  clubName: {
+  club_name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -23,12 +22,17 @@ Club.init({
   underscored: true,
   sequelize: db,
   timestamps: false,
+  modelName: 'Club',
   tableName: 'clubs',
 });
 
-Match.belongsTo(Club, { foreignKey: 'homeTeam', as: 'homeClub' });
+
+Club.hasMany(Match, { foreignKey: 'id', as: 'matchs' });
+Match.belongsTo(Club, { foreignKey: 'id', as: 'clubs' });
+
+/* Match.belongsTo(Club, { foreignKey: 'homeTeam', as: 'homeClub' });
 Match.belongsTo(Club, { foreignKey: 'awayTeam', as: 'awayClub' });
 Club.hasMany(Match, { foreignKey: 'homeTeam', as: 'homeClub' });
 Club.hasMany(Match, { foreignKey: 'awayTeam', as: 'awayClub' });
-
+ */
 export default Club;

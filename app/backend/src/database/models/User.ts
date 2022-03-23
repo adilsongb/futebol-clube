@@ -1,15 +1,12 @@
 import { DataTypes, Model } from 'sequelize';
+import sequelize from '.'; // ve oq faz
 import db from '.';
 
 class User extends Model {
   public id: number;
-
   public username: string;
-
   public password: string;
-
   public email: string;
-
   public role: string;
 }
 
@@ -37,9 +34,10 @@ User.init({
     allowNull: false,
   },
 }, {
+  sequelize,
   underscored: true,
-  sequelize: db,
   timestamps: false,
+  modelName: 'User',
   tableName: 'users',
 });
 
