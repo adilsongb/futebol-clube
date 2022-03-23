@@ -4,7 +4,7 @@ import Match from './Match';
 
 class Club extends Model {
   public id: number;
-  public club_name: string;
+  public clubName: string;
 }
 
 Club.init({
@@ -13,24 +13,22 @@ Club.init({
     primaryKey: true,
     autoIncrement: true,
   },
-  club_name: {
+  clubName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
 }, {
-  // ... Outras configs
   underscored: true,
   sequelize: db,
   modelName: 'Club',
+  tableName: 'clubs',
   timestamps: false,
 });
 
-/**
-  * `Workaround` para aplicar as associations em TS: 
-  * Associations 1:N devem ficar em uma das instâncias de modelo
-  * */
+Club.hasMany(Match, { foreignKey: 'homeTeam', as: 'homeClub' });
+Club.hasMany(Match, { foreignKey: 'awayTeam', as: 'awayClub' });
 
-Club.hasMany(Match, { foreignKey: 'id', as: 'matchs' });
-Match.belongsTo(Club, { foreignKey: 'id', as: 'clubs' });
+Match.belongsTo(Club, { foreignKey: 'homeTeam', as: 'homeClub' });
+Match.belongsTo(Club, { foreignKey: 'awayTeam', as: 'awayClub' });
 
 export default Club;

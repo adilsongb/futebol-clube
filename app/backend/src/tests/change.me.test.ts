@@ -3,7 +3,7 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 
 import { app } from '../app';
-import Example from '../database/models/ExampleModel';
+import User from '../database/models/User';
 
 import { Response } from 'superagent';
 
@@ -11,34 +11,17 @@ chai.use(chaiHttp);
 
 const { expect } = chai;
 
-describe('Seu teste', () => {
-  /**
-   * Exemplo do uso de stubs com tipos
-   */
+describe('Rota /login (POST)', () => {
+  describe('Requisição feita com sucesso com usuário válido', () => {
+    const user = {
+      email: 'user@user.com',
+      password: 'super_user',
+    }
+  
+    let response: Response;
 
-  // let chaiHttpResponse: Response;
+    it('', () => {
 
-  // before(async () => {
-  //   sinon
-  //     .stub(Example, "findOne")
-  //     .resolves({
-  //       ...<Seu mock>
-  //     } as Example);
-  // });
-
-  // after(()=>{
-  //   (Example.findOne as sinon.SinonStub).restore();
-  // })
-
-  // it('...', async () => {
-  //   chaiHttpResponse = await chai
-  //      .request(app)
-  //      ...
-
-  //   expect(...)
-  // });
-
-  it('Seu sub-teste', () => {
-    expect(false).to.be.eq(true);
+    })
   });
 });
