@@ -11,6 +11,11 @@ const login = async (req: Request, res: Response) => {
   return res.status(200).json(data);
 };
 
-const hello = () => console.log(2);
+const validate = async (req: Request, res: Response) => {
+  const token = req.headers.authorization || '';
+  const data = await UserServices.getRole(token);
 
-export { login, hello };
+  return res.status(200).json(data);
+};
+
+export { login, validate };

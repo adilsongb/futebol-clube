@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as bcryptjs from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import Users from '../database/models/User';
+import verifyJWT from '../auth/verifyJWT';
 
 type UserLogin = { email: string, password: string };
 
@@ -14,7 +15,7 @@ const getUser = async ({ email, password }: UserLogin) => {
 
   if (!verifyCrypt) { return { status: 401, message: 'Incorrect email or password' }; }
 
-  const secretKey = await fs.readFileSync('jwt.evaluation.key', 'utf8').trim();
+  const secretKey = fs.readFileSync('jwt.evaluation.key', 'utf8').trim();
   const token = jwt.sign({ email }, secretKey);
 
   const userLoginResponse = {
@@ -30,6 +31,14 @@ const getUser = async ({ email, password }: UserLogin) => {
   return { status: 200, data: userLoginResponse };
 };
 
-const hello2 = () => console.log(1);
+const getRole = async (token: string) => {
+  const decoded = verifyJWT(token);
 
-export { getUser, hello2 };
+  if (typeof decoded === 'object') {
+    const user = await Users.findOne({ where: { email: decoded.email } });
+
+    return user?.role;
+  }
+};
+
+export { getUser, getRole };
