@@ -25,6 +25,7 @@ Match.init({
   underscored: true,
   sequelize: db,
   timestamps: false,
+  tableName: 'matchs',
 });
 
 export default Match;

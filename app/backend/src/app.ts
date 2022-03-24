@@ -1,5 +1,6 @@
 import * as express from 'express';
 import clubsController from './controllers/clubsController';
+import matchsController from './controllers/matchsController';
 import { login, validate } from './controllers/loginController';
 import validation from './middlewares/validations';
 
@@ -27,6 +28,7 @@ class App {
     this.app.get('/login/validate', validate);
     this.app.get('/clubs', clubsController.getAllClubs);
     this.app.get('/clubs/:id', clubsController.getClubById);
+    this.app.get('/matchs', matchsController.getMatchs);
   }
 
   // ...
