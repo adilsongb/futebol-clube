@@ -5,7 +5,9 @@ import chaiHttp = require('chai-http');
 
 import { app } from '../app';
 import User from '../database/models/User';
+import Club from '../database/models/Club';
 import { tokenAuth, userFindOneMock } from './mocks/users';
+import { clubGetIdMock, clubsGetAllMock } from './mocks/clubs';
 
 import { Response } from 'superagent';
 
@@ -118,5 +120,45 @@ describe('ENDPOINT /login/validate (GET)', () => {
       .get('/login/validate').set('Authorization', authorization);
     expect(response.body).to.be.equal('admin');
     expect(response.status).to.be.equal(200);
+  });
+});
+
+describe('ENDPOINT /clubs (GET)', () => {
+  let response: Response;
+  
+  describe('Requisição é feita com sucesso', () => {
+    before(async () => {
+      sinon.stub(Club, "findAll").resolves(clubsGetAllMock as Club[]);
+    })
+    
+    after(async () => {
+      (Club.findAll as sinon.SinonStub).restore();
+    })
+
+    it('Retorna um array com os clubs', async () => {
+      response = await chai.request(app).get('/clubs');
+      expect(response.body).to.deep.equal(clubsGetAllMock);
+      expect(response.status).to.be.equal(200);
+    });
+  });
+});
+
+describe('ENDPOINT /clubs/:id (GET)', () => {
+  let response: Response;
+  
+  describe('Requisição é feita com sucesso com o id "1"', () => {
+    before(async () => {
+      sinon.stub(Club, "findByPk").resolves(clubGetIdMock as Club);
+    })
+    
+    after(async () => {
+      (Club.findByPk as sinon.SinonStub).restore();
+    })
+
+    it('Retorna um objeto com o club', async () => {
+      response = await chai.request(app).get('/clubs/1');
+      expect(response.body).to.deep.equal(clubGetIdMock);
+      expect(response.status).to.be.equal(200);
+    });
   });
 });
