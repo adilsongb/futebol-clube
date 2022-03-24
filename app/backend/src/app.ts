@@ -1,4 +1,5 @@
 import * as express from 'express';
+import clubsController from './controllers/clubsController';
 import { login, validate } from './controllers/loginController';
 import validation from './middlewares/validations';
 
@@ -24,6 +25,8 @@ class App {
     this.app.use(express.json());
     this.app.post('/login', validation.validLogin, login);
     this.app.get('/login/validate', validate);
+    this.app.get('/clubs', clubsController.getAllClubs);
+    this.app.get('/clubs/:id', clubsController.getClubById);
   }
 
   // ...
