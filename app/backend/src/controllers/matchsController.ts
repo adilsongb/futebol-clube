@@ -25,10 +25,14 @@ const saveMatch = async (req: Request, res: Response) => {
     return res.status(400).json({ message: MESSAGE.ERR_MATCH_EQUAL_TEAMS });
   }
 
-  const dataMatch = await matchService.createMatch({
-    homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress });
+  try {
+    const dataMatch = await matchService.createMatch({
+      homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress });
 
-  return res.status(201).json(dataMatch);
+    return res.status(201).json(dataMatch);
+  } catch (error) {
+    return res.status(400).json({ message: MESSAGE.ERR_INVALID_ID_TEAM });
+  }
 };
 
 const finishMatch = async (req: Request, res: Response) => {
