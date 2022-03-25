@@ -31,7 +31,7 @@ const saveMatch = async (req: Request, res: Response) => {
 
     return res.status(201).json(dataMatch);
   } catch (error) {
-    return res.status(400).json({ message: MESSAGE.ERR_INVALID_ID_TEAM });
+    return res.status(401).json({ message: MESSAGE.ERR_INVALID_ID_TEAM });
   }
 };
 
