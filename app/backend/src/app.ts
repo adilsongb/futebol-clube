@@ -3,15 +3,14 @@ import clubsController from './controllers/clubsController';
 import matchsController from './controllers/matchsController';
 import { login, validate } from './controllers/loginController';
 import validation from './middlewares/validations';
+import checkToken from './auth/checkToken';
 
 class App {
   public app: express.Express;
-  // ...
 
   constructor() {
     this.app = express();
     this.config();
-    // ...
   }
 
   private config():void {
@@ -29,9 +28,9 @@ class App {
     this.app.get('/clubs', clubsController.getAllClubs);
     this.app.get('/clubs/:id', clubsController.getClubById);
     this.app.get('/matchs', matchsController.getMatchs);
+    this.app.post('/matchs', checkToken, matchsController.saveMatch);
   }
 
-  // ...
   public start(PORT: string | number):void {
     this.app.listen(PORT, () => console.log(`Escutando na porta ${PORT}`));
   }

@@ -23,4 +23,10 @@ const getMatchsByProgress = async (inProgress: boolean) => {
   return { status: 200, data: matchsData };
 };
 
-export default { getAllMatchs, getMatchsByProgress };
+const createMatch = async (data: object) => {
+  const newMatch = await Matchs.create({ ...data });
+
+  return newMatch;
+};
+
+export default { getAllMatchs, getMatchsByProgress, createMatch };
