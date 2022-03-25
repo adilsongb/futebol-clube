@@ -22,7 +22,7 @@ const saveMatch = async (req: Request, res: Response) => {
   const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress } = req.body;
 
   if (homeTeam === awayTeam) {
-    return res.status(400).json({ message: MESSAGE.ERR_MATCH_EQUAL_TEAMS });
+    return res.status(401).json({ message: MESSAGE.ERR_MATCH_EQUAL_TEAMS });
   }
 
   try {
@@ -39,7 +39,7 @@ const finishMatch = async (req: Request, res: Response) => {
   const { id } = req.params;
   const finishedMatch = await matchService.finishMatch(id);
 
-  return res.status(204).json(finishedMatch).end();
+  return res.status(200).json(finishedMatch).end();
 };
 
 export default { getMatchs, saveMatch, finishMatch };
