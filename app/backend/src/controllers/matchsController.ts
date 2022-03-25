@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import matchService from '../services/matchService';
+import MESSAGE from '../utils/messages';
 
 const getMatchs = async (req: Request, res: Response) => {
   const { inProgress } = req.query;
@@ -19,6 +20,11 @@ const getMatchs = async (req: Request, res: Response) => {
 
 const saveMatch = async (req: Request, res: Response) => {
   const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress } = req.body;
+
+  if (homeTeam === awayTeam) {
+    return res.status(400).json({ message: MESSAGE.ERR_MATCH_EQUAL_TEAMS });
+  }
+
   const dataMatch = await matchService.createMatch({
     homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress });
 
