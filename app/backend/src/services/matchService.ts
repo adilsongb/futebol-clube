@@ -29,4 +29,11 @@ const createMatch = async (data: object) => {
   return newMatch;
 };
 
-export default { getAllMatchs, getMatchsByProgress, createMatch };
+const finishMatch = async (id: string) => {
+  const inProgress = false;
+  const updateMatch = await Matchs.update({ inProgress }, { where: { id } });
+
+  return updateMatch;
+};
+
+export default { getAllMatchs, getMatchsByProgress, createMatch, finishMatch };

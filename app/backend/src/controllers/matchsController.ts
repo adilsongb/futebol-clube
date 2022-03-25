@@ -25,4 +25,11 @@ const saveMatch = async (req: Request, res: Response) => {
   return res.status(201).json(dataMatch);
 };
 
-export default { getMatchs, saveMatch };
+const finishMatch = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const finishedMatch = await matchService.finishMatch(id);
+
+  return res.status(204).json(finishedMatch).end();
+};
+
+export default { getMatchs, saveMatch, finishMatch };

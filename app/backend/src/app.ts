@@ -29,6 +29,7 @@ class App {
     this.app.get('/clubs/:id', clubsController.getClubById);
     this.app.get('/matchs', matchsController.getMatchs);
     this.app.post('/matchs', checkToken, matchsController.saveMatch);
+    this.app.patch('/matchs/:id/finish', checkToken, matchsController.finishMatch);
   }
 
   public start(PORT: string | number):void {
