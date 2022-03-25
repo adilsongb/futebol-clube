@@ -42,4 +42,18 @@ const finishMatch = async (req: Request, res: Response) => {
   return res.status(200).json(finishedMatch);
 };
 
-export default { getMatchs, saveMatch, finishMatch };
+const editMatch = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { homeTeamGoals, awayTeamGoals } = req.body;
+
+  if (homeTeamGoals === undefined || awayTeamGoals === undefined) {
+    const finishedMatch = await matchService.finishMatch(id);
+    return res.status(200).json(finishedMatch);
+  }
+
+  const editedMatch = await matchService.editMatch(id, { homeTeamGoals, awayTeamGoals });
+
+  return res.status(200).json(editedMatch);
+};
+
+export default { getMatchs, saveMatch, finishMatch, editMatch };

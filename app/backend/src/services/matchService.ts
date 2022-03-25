@@ -36,4 +36,13 @@ const finishMatch = async (id: string) => {
   return updateMatch;
 };
 
-export default { getAllMatchs, getMatchsByProgress, createMatch, finishMatch };
+type UpdateMatchGoals = { homeTeamGoals: number, awayTeamGoals: number };
+
+const editMatch = async (id: string, { homeTeamGoals, awayTeamGoals }: UpdateMatchGoals) => {
+  const updateMatch = await Matchs
+    .update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
+
+  return updateMatch;
+};
+
+export default { getAllMatchs, getMatchsByProgress, createMatch, finishMatch, editMatch };

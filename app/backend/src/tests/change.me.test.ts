@@ -6,10 +6,12 @@ import chaiHttp = require('chai-http');
 import { app } from '../app';
 import User from '../database/models/User';
 import Club from '../database/models/Club';
+import Match from '../database/models/Match';
 import { tokenAuth, userFindOneMock } from './mocks/users';
 import { clubGetIdMock, clubsGetAllMock } from './mocks/clubs';
 
 import { Response } from 'superagent';
+import { matchCreate, matchFindAll } from './mocks/matchs';
 
 chai.use(chaiHttp);
 
@@ -158,6 +160,58 @@ describe('ENDPOINT /clubs/:id (GET)', () => {
     it('Retorna um objeto com o club', async () => {
       response = await chai.request(app).get('/clubs/1');
       expect(response.body).to.deep.equal(clubGetIdMock);
+      expect(response.status).to.be.equal(200);
+    });
+  });
+});
+
+describe('ENDPOINT /matchs (GET)', () => {
+  let response: Response;
+  
+  describe('Requisição é feita com sucesso', () => {
+    before(async () => {
+      sinon.stub(Match, "findAll").resolves(matchFindAll as Match[]);
+    })
+    
+    after(async () => {
+      (Match.findAll as sinon.SinonStub).restore();
+    })
+
+    it('Retorna um array com todos os matchs', async () => {
+      response = await chai.request(app).get('/matchs');
+      expect(response.body).to.deep.equal(matchFindAll);
+      expect(response.body).to.be.an('array');
+      expect(response.status).to.be.equal(200);
+    });
+  });
+});
+
+describe('ENDPOINT /matchs (POST)', () => {
+  let response: Response;
+  let requestBody = {};
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImlhdCI6MTY0NzcyNTQ4N30.liM1Oa_nEGRshFcjd4gz8JWPoTHXKML-dATZVOzKb2A"
+
+  describe('Requisição é feita com sucesso', () => {
+    before(async () => {
+      sinon.stub(Match, "create").resolves(matchCreate as Match);
+    })
+    
+    after(async () => {
+      (Match.create as sinon.SinonStub).restore();
+    })
+
+    requestBody = {
+      homeTeam: 16,
+      awayTeam: 8,
+      homeTeamGoals: 2,
+      awayTeamGoals: 2,
+      inProgress: true
+    }
+
+    it('Retorna um objeto representando a nova match', async () => {
+      response = await chai.request(app).post('/matchs').send(requestBody).set('Authorization', token);
+      expect(response.body).to.deep.equal(matchFindAll[0]);
+      expect(response.body).to.be.an('array');
       expect(response.status).to.be.equal(200);
     });
   });
