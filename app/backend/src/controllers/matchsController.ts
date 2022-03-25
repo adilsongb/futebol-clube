@@ -39,7 +39,7 @@ const finishMatch = async (req: Request, res: Response) => {
   const { id } = req.params;
   const finishedMatch = await matchService.finishMatch(id);
 
-  return res.status(200).json(finishedMatch).end();
+  return res.status(200).json(finishedMatch);
 };
 
 export default { getMatchs, saveMatch, finishMatch };
