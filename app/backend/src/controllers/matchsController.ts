@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import clubService from '../services/clubService';
 import matchService from '../services/matchService';
 import MESSAGE from '../utils/messages';
 
@@ -56,4 +57,17 @@ const editMatch = async (req: Request, res: Response) => {
   return res.status(200).json(editedMatch);
 };
 
-export default { getMatchs, saveMatch, finishMatch, editMatch };
+const getClassification = async (req: Request, res: Response) => {
+  const { data } = await clubService.getAll();
+  const ratings = await matchService.generateClassification(data);
+
+  return res.status(200).json(ratings);
+};
+
+export default {
+  getMatchs,
+  saveMatch,
+  finishMatch,
+  editMatch,
+  getClassification,
+};

@@ -33,6 +33,7 @@ class App {
     this.app.post('/matchs', checkToken, matchsController.saveMatch);
     this.app.patch('/matchs/:id/finish', checkToken, matchsController.finishMatch);
     this.app.patch('/matchs/:id', checkToken, matchsController.editMatch);
+    this.app.get('/leaderboard', matchsController.getClassification);
   }
 
   public start(PORT: string | number):void {
