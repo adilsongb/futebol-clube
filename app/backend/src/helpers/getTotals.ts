@@ -44,19 +44,19 @@ const getMatchStatusAway = (homeTeamGoals: number, awayTeamGoals: number) => {
 
 /* ******************************* */
 
-export const getTotals = (id: number, data: Matchs[]) => {
+export const getTotals = (id: number, data: Matchs[], home: boolean, away: boolean) => {
   let totalGames = 0;
   let totalPoints = 0;
 
   data.forEach((match: Matchs) => {
     const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals } = match;
 
-    if (homeTeam === id) {
+    if (homeTeam === id && home) {
       totalGames += 1;
       totalPoints += getMatchPointsHome(homeTeamGoals, awayTeamGoals);
     }
 
-    if (awayTeam === id) {
+    if (awayTeam === id && away) {
       totalGames += 1;
       totalPoints += getMatchPointsAway(homeTeamGoals, awayTeamGoals);
     }
@@ -65,20 +65,20 @@ export const getTotals = (id: number, data: Matchs[]) => {
   return { totalPoints, totalGames };
 };
 
-export const getTotalStatus = (id: number, data: Matchs[]) => {
+export const getTotalStatus = (id: number, data: Matchs[], home: boolean, away: boolean) => {
   let totalVictories = 0;
   let totalDraws = 0;
   let totalLosses = 0;
 
   data.forEach(({ homeTeam, awayTeam, homeTeamGoals, awayTeamGoals }: Matchs) => {
-    if (homeTeam === id) {
+    if (homeTeam === id && home) {
       const statusMatch = getMatchStatusHome(homeTeamGoals, awayTeamGoals);
       totalVictories += statusMatch.victorie;
       totalDraws += statusMatch.draw;
       totalLosses += statusMatch.defeat;
     }
 
-    if (awayTeam === id) {
+    if (awayTeam === id && away) {
       const statusMatch = getMatchStatusAway(homeTeamGoals, awayTeamGoals);
       totalVictories += statusMatch.victorie;
       totalDraws += statusMatch.draw;
@@ -89,18 +89,18 @@ export const getTotalStatus = (id: number, data: Matchs[]) => {
   return { totalVictories, totalDraws, totalLosses };
 };
 
-export const getTotalGoals = (id: number, data: Matchs[]) => {
+export const getTotalGoals = (id: number, data: Matchs[], home: boolean, away: boolean) => {
   let goalsFavor = 0;
   let goalsOwn = 0;
   let goalsBalance = 0;
 
   data.forEach(({ homeTeam, awayTeam, homeTeamGoals, awayTeamGoals }: Matchs) => {
-    if (homeTeam === id) {
+    if (homeTeam === id && home) {
       goalsFavor += homeTeamGoals;
       goalsOwn += awayTeamGoals;
     }
 
-    if (awayTeam === id) {
+    if (awayTeam === id && away) {
       goalsFavor += awayTeamGoals;
       goalsOwn += homeTeamGoals;
     }

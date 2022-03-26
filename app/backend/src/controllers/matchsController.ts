@@ -57,9 +57,23 @@ const editMatch = async (req: Request, res: Response) => {
   return res.status(200).json(editedMatch);
 };
 
-const getClassification = async (req: Request, res: Response) => {
+const getAllRatings = async (req: Request, res: Response) => {
   const { data } = await clubService.getAll();
-  const ratings = await matchService.generateClassification(data);
+  const ratings = await matchService.generateRatings(data, true, true);
+
+  return res.status(200).json(ratings);
+};
+
+const getHomeRatings = async (req: Request, res: Response) => {
+  const { data } = await clubService.getAll();
+  const ratings = await matchService.generateRatings(data, true, false);
+
+  return res.status(200).json(ratings);
+};
+
+const getAwayRatings = async (req: Request, res: Response) => {
+  const { data } = await clubService.getAll();
+  const ratings = await matchService.generateRatings(data, false, true);
 
   return res.status(200).json(ratings);
 };
@@ -69,5 +83,7 @@ export default {
   saveMatch,
   finishMatch,
   editMatch,
-  getClassification,
+  getAllRatings,
+  getHomeRatings,
+  getAwayRatings,
 };

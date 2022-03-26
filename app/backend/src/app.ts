@@ -23,6 +23,10 @@ class App {
     };
 
     this.app.use(accessControl);
+    this.routes();
+  }
+
+  private routes():void {
     this.app.use(express.json());
     this.app.use(cors());
     this.app.post('/login', validation.validLogin, login);
@@ -33,7 +37,9 @@ class App {
     this.app.post('/matchs', checkToken, matchsController.saveMatch);
     this.app.patch('/matchs/:id/finish', checkToken, matchsController.finishMatch);
     this.app.patch('/matchs/:id', checkToken, matchsController.editMatch);
-    this.app.get('/leaderboard', matchsController.getClassification);
+    this.app.get('/leaderboard', matchsController.getAllRatings);
+    this.app.get('/leaderboard/home', matchsController.getHomeRatings);
+    this.app.get('/leaderboard/away', matchsController.getAwayRatings);
   }
 
   public start(PORT: string | number):void {

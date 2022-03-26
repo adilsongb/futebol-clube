@@ -1,6 +1,7 @@
 import Matchs from '../database/models/Match';
 import Clubs from '../database/models/Club';
 import { getTotalGoals, getTotals, getTotalStatus } from '../helpers/getTotals';
+import orderRatings from '../helpers/sort';
 
 const getAllMatchs = async () => {
   const matchsData = await Matchs.findAll({
@@ -46,22 +47,28 @@ const editMatch = async (id: string, { homeTeamGoals, awayTeamGoals }: UpdateMat
   return updateMatch;
 };
 
-const generateClassification = async (clubs: Clubs[]) => {
+const generateRatings = async (clubs: Clubs[], findInHome: boolean, findInAway: boolean) => {
   const { data } = await getMatchsByProgress(false);
 
   const ratings = clubs.map(({ id, clubName }: Clubs) => {
     const name = clubName;
-    const totals = getTotals(id, data);
-    const totalStatus = getTotalStatus(id, data);
-    const totalGoals = getTotalGoals(id, data);
+    const totals = getTotals(id, data, findInHome, findInAway);
+    const totalStatus = getTotalStatus(id, data, findInHome, findInAway);
+    const totalGoals = getTotalGoals(id, data, findInHome, findInAway);
     let efficiency = (totals.totalPoints / (totals.totalGames * 3)) * 100;
+    /* http://ptcomputador.com/P/javascript-programming/90880.html */
     efficiency = Math.round(efficiency * 100) / 100;
 
     return { name, ...totals, ...totalStatus, ...totalGoals, efficiency };
   });
 
-  return ratings;
+  return ratings.sort(orderRatings);
 };
+
+/* const generateRatingsHome = async (clubs: Clubs[]) => {
+  const { data } = await getMatchsByProgress(false);
+  return data;
+}; */
 
 export default {
   getAllMatchs,
@@ -69,5 +76,5 @@ export default {
   createMatch,
   finishMatch,
   editMatch,
-  generateClassification,
+  generateRatings,
 };
