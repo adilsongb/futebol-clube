@@ -65,11 +65,6 @@ const generateRatings = async (clubs: Clubs[], findInHome: boolean, findInAway: 
   return ratings.sort(orderRatings);
 };
 
-/* const generateRatingsHome = async (clubs: Clubs[]) => {
-  const { data } = await getMatchsByProgress(false);
-  return data;
-}; */
-
 export default {
   getAllMatchs,
   getMatchsByProgress,

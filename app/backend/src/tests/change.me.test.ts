@@ -7,11 +7,22 @@ import { app } from '../app';
 import User from '../database/models/User';
 import Club from '../database/models/Club';
 import Match from '../database/models/Match';
+import matchObject from '../interfaces/match';
 import { tokenAuth, userFindOneMock } from './mocks/users';
 import { clubGetIdMock, clubsGetAllMock } from './mocks/clubs';
+import {
+  matchCreate,
+  matchsInDB,
+  matchFindAll,
+  matchInProgressFalse,
+  matchInProgressTrue,
+  ratingsAll,
+  ratingsHome,
+  ratingsAway,
+} from './mocks/matchs';
 
 import { Response } from 'superagent';
-import { matchCreate, matchFindAll } from './mocks/matchs';
+import MESSAGE from '../utils/messages';
 
 chai.use(chaiHttp);
 
@@ -168,9 +179,9 @@ describe('ENDPOINT /clubs/:id (GET)', () => {
 describe('ENDPOINT /matchs (GET)', () => {
   let response: Response;
   
-  describe('Requisição é feita com sucesso', () => {
+  describe('Requisição OK -> All matchs', () => {
     before(async () => {
-      sinon.stub(Match, "findAll").resolves(matchFindAll as Match[]);
+      sinon.stub(Match, "findAll").resolves(matchFindAll as matchObject[]);
     })
     
     after(async () => {
@@ -184,12 +195,52 @@ describe('ENDPOINT /matchs (GET)', () => {
       expect(response.status).to.be.equal(200);
     });
   });
+
+  describe('Requisição OK -> inProgress false matchs', () => {
+    before(async () => {
+      sinon.stub(Match, "findAll").resolves(matchInProgressFalse as matchObject[]);
+    })
+    
+    after(async () => {
+      (Match.findAll as sinon.SinonStub).restore();
+    })
+
+    it('Retorna um array com todos os matchs com inProgress igual a false', async () => {
+      response = await chai.request(app).get('/matchs?inProgress=false');
+      expect(response.body).to.deep.equal(matchInProgressFalse);
+      expect(response.body).to.be.an('array');
+      expect(response.status).to.be.equal(200);
+      expect(response.body[0].inProgress).to.be.equal(false);
+      expect(response.body[1].inProgress).to.be.equal(false);
+      expect(response.body[2].inProgress).to.be.equal(false);
+    });
+  });
+
+  describe('Requisição OK -> inProgress true matchs', () => {
+    before(async () => {
+      sinon.stub(Match, "findAll").resolves(matchInProgressTrue as matchObject[]);
+    })
+    
+    after(async () => {
+      (Match.findAll as sinon.SinonStub).restore();
+    })
+
+    it('Retorna um array com todos os matchs com inProgress igual a true', async () => {
+      response = await chai.request(app).get('/matchs?inProgress=true');
+      expect(response.body).to.deep.equal(matchInProgressTrue);
+      expect(response.body).to.be.an('array');
+      expect(response.status).to.be.equal(200);
+      expect(response.body[0].inProgress).to.be.equal(true);
+      expect(response.body[1].inProgress).to.be.equal(true);
+      expect(response.body[2].inProgress).to.be.equal(true);
+    });
+  });
 });
 
 describe('ENDPOINT /matchs (POST)', () => {
   let response: Response;
   let requestBody = {};
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImlhdCI6MTY0NzcyNTQ4N30.liM1Oa_nEGRshFcjd4gz8JWPoTHXKML-dATZVOzKb2A"
+  const authorization = tokenAuth;
 
   describe('Requisição é feita com sucesso', () => {
     before(async () => {
@@ -208,9 +259,159 @@ describe('ENDPOINT /matchs (POST)', () => {
       inProgress: true
     }
 
-    it('Retorna um objeto representando a nova match', async () => {
-      response = await chai.request(app).post('/matchs').send(requestBody).set('Authorization', token);
-      expect(response.body).to.deep.equal(matchFindAll[0]);
+    it('Retorna um objeto da nova partida', async () => {
+      response = await chai.request(app).post('/matchs').send(requestBody).set('Authorization', authorization);
+      expect(response.body).to.deep.equal(matchsInDB[matchsInDB.length - 1]);
+      expect(response.body).to.be.an('object');
+      expect(response.status).to.be.equal(201);
+    });
+  });
+
+  describe('Requisição feita com dois times iguais', () => {
+    const requestBodyEqualTeams = {
+      homeTeam: 8,
+      awayTeam: 8,
+      homeTeamGoals: 2,
+      awayTeamGoals: 2,
+      inProgress: true
+    }
+
+    it('Retorna uma mensagem de erro e status 401', async () => {
+      response = await chai.request(app).post('/matchs').send(requestBodyEqualTeams).set('Authorization', authorization);
+      expect(response.body).to.deep.equal({ message: MESSAGE.ERR_MATCH_EQUAL_TEAMS });
+      expect(response.status).to.be.equal(401);
+    });
+  });
+
+  describe('Requisição feita com time inexistente', () => {
+    const requestBodyInvalidTeam = {
+      homeTeam: 8,
+      awayTeam: 79,
+      homeTeamGoals: 2,
+      awayTeamGoals: 2,
+      inProgress: true
+    }
+
+    it('Retorna uma mensagem de erro e status 401', async () => {
+      response = await chai.request(app).post('/matchs').send(requestBodyInvalidTeam).set('Authorization', authorization);
+      expect(response.body).to.deep.equal({ message: MESSAGE.ERR_INVALID_ID_TEAM});
+      expect(response.status).to.be.equal(401);
+    });
+  });
+});
+
+type numberUpdate = Array<number> | any;
+
+describe('ENDPOINT /matchs/:id/finish (PATCH)', () => {
+  let response: Response;
+  const authorization = tokenAuth;
+
+  describe('Requisição feita com sucesso', () => {
+    before(async () => {
+      sinon.stub(Match, "update").resolves([1] as numberUpdate);
+    })
+    
+    after(async () => {
+      (Match.update as sinon.SinonStub).restore();
+    })
+
+    it('Caso a partida não esteja finalizada: Retorna [1] e status 200', async () => {
+      response = await chai.request(app).patch('/matchs/41/finish').set('Authorization', authorization);
+      expect(response.body).to.deep.equal([1]);
+      expect(response.status).to.be.equal(200);
+    });
+  });
+});
+
+describe('ENDPOINT /matchs/:id (PATCH)', () => {
+  let response: Response;
+  const authorization = tokenAuth;
+
+  describe('Requisição feita com sucesso', () => {
+    before(async () => {
+      sinon.stub(Match, "update").resolves([1] as numberUpdate);
+    })
+    
+    after(async () => {
+      (Match.update as sinon.SinonStub).restore();
+    })
+
+    let requestBodyUpdate = {
+      homeTeamGoals: 3,
+      awayTeamGoals: 1,
+    }
+
+    it('Caso a partida não esteja finalizada: Retorna [1] e status 200', async () => {
+      response = await chai.request(app).patch('/matchs/41').send(requestBodyUpdate).set('Authorization', authorization);
+      expect(response.body).to.deep.equal([1]);
+      expect(response.status).to.be.equal(200);
+    });
+  });
+});
+
+describe('ENDPOINT /leaderboard (GET)', () => {
+  let response: Response;
+
+  describe('Requisição feita com sucesso', () => {
+    before(async () => {
+      sinon.stub(Club, "findAll").resolves(clubsGetAllMock as Club[]);
+      sinon.stub(Match, "findAll").resolves(matchInProgressFalse as matchObject[]);
+    })
+    
+    after(async () => {
+      (Club.findAll as sinon.SinonStub).restore();
+      (Match.findAll as sinon.SinonStub).restore();
+    })
+
+    it('Retorna um array de objetos com os dados de cada time', async () => {
+      response = await chai.request(app).get('/leaderboard');
+      expect(response.body).to.deep.equal(ratingsAll);
+      expect(response.body).to.be.an('array');
+      expect(response.status).to.be.equal(200);
+    });
+  });
+});
+
+describe('ENDPOINT /leaderboard/home (GET)', () => {
+  let response: Response;
+
+  describe('Requisição feita com sucesso', () => {
+    before(async () => {
+      sinon.stub(Club, "findAll").resolves(clubsGetAllMock as Club[]);
+      sinon.stub(Match, "findAll").resolves(matchInProgressFalse as matchObject[]);
+    })
+    
+    after(async () => {
+      (Club.findAll as sinon.SinonStub).restore();
+      (Match.findAll as sinon.SinonStub).restore();
+    })
+
+    it('Retorna um array de objetos com os dados de cada time da casa', async () => {
+      response = await chai.request(app).get('/leaderboard/home');
+      expect(response.body).to.deep.equal(ratingsHome);
+      expect(response.body).to.be.an('array');
+      expect(response.status).to.be.equal(200);
+    });
+  });
+});
+
+describe('ENDPOINT /leaderboard/away (GET)', () => {
+  let response: Response;
+
+  describe('Requisição feita com sucesso', () => {
+    before(async () => {
+      sinon.stub(Club, "findAll").resolves(clubsGetAllMock as Club[]);
+      sinon.stub(Match, "findAll").resolves(matchInProgressFalse as matchObject[]);
+    })
+    
+    after(async () => {
+      (Club.findAll as sinon.SinonStub).restore();
+      (Match.findAll as sinon.SinonStub).restore();
+    })
+
+    it('Retorna um array de objetos com os dados de cada time convidado', async () => {
+      response = await chai.request(app).get('/leaderboard/away');
+      expect(response.body).to.deep.equal(ratingsAway);
       expect(response.body).to.be.an('array');
       expect(response.status).to.be.equal(200);
     });
